@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import App from "./App";
+import App from "./StackedCards";
 import * as serviceWorker from "./serviceWorker";
 let cards = [
   { id: 1, color: "red" },
@@ -21,7 +21,7 @@ ReactDOM.render(
       removalAnimationClassName={"transformThis"}
       items={cards}
       itemRenderFn={itemRenderFn}
-      stackCount={4}
+      cardsToShow={4}
     ></App>
   </div>,
   document.getElementById("root")

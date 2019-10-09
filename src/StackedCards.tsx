@@ -1,10 +1,10 @@
 import React from "react";
-import { Styled } from "./styled";
+import { CardStyled } from "./StackCards.styled";
 
 interface StackedCardProps {
-  stackCount?: number;
+  cardsToShow?: number;
   items: any[];
-  itemRenderFn: (item: any) => React.ReactNode;
+  itemRenderFn?: (item: any) => React.ReactNode;
   removalAnimationClassName?: string;
   delay?: number;
   gapY?: number;
@@ -14,17 +14,17 @@ interface StackedCardProps {
 const StackedCard: React.FC<StackedCardProps> = (
   props: StackedCardProps
 ): React.ReactElement => {
-  const {
-    stackCount = 3,
+  let {
+    cardsToShow = 3,
     items,
     delay = 400,
     gapX = 10,
     gapY = 10,
     removalAnimationClassName = "stacked-card-remove-active"
   } = props;
-
+  if (cardsToShow > items.length) cardsToShow = items.length;
   const [cards, setCards] = React.useState(
-    items.slice(items.length - stackCount)
+    items.slice(items.length - cardsToShow)
   );
   const [activeID, setActiveID] = React.useState(-1);
   const doClick = () => {
@@ -33,7 +33,7 @@ const StackedCard: React.FC<StackedCardProps> = (
     setTimeout(() => {
       if (removedItem) {
         let removedItemIndex = items.indexOf(removedItem);
-        let newCard = items[removedItemIndex - stackCount];
+        let newCard = items[removedItemIndex - cardsToShow];
         if (newCard) newCards.unshift({ ...newCard });
         setCards(newCards);
       }
@@ -42,11 +42,11 @@ const StackedCard: React.FC<StackedCardProps> = (
   };
 
   let cardsElmts = cards.map((item, i) => (
-    <Styled
+    <CardStyled
       onClick={doClick}
       key={item.id}
       style={{
-        top: -i * gapY,
+        top: i * gapY,
         left: i * gapX,
         backgroundColor: item.color
       }}
@@ -55,8 +55,10 @@ const StackedCard: React.FC<StackedCardProps> = (
       } stacked-card`}
     >
       {item.id}
-      <div>{props.itemRenderFn(item)}</div>
-    </Styled>
+      <div data-testid={`stacked-card-${item.id}`}>
+        {!!props.itemRenderFn && props.itemRenderFn(item)}
+      </div>
+    </CardStyled>
   ));
   return React.useMemo(
     () => <div style={{ position: "relative" }}>{cardsElmts}</div>,
