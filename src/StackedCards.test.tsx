@@ -1,7 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./StackedCards";
-import { mount, shallow } from "enzyme";
+import { render, fireEvent } from "@testing-library/react";
+import { act } from "react-dom/test-utils";
 
 beforeEach(() => {});
 
@@ -14,10 +15,10 @@ it("renders without crashing with no items", () => {
     delay: 400,
     gapX: 10,
     gapY: 10,
-    removalAnimationClassName: "stacked-card-remove-active",
+    cardRemovedClassName: "stacked-card-remove-active",
     itemRenderFn: jest.fn()
   };
-  mount(<App {...props}></App>);
+  render(<App {...props}></App>);
 });
 
 it("renders without crashing with items", () => {
@@ -31,16 +32,18 @@ it("renders without crashing with items", () => {
     delay: 400,
     gapX: 10,
     gapY: 10,
-    removalAnimationClassName: "stacked-card-remove-active",
+    cardRemovedClassName: "stacked-card-remove-active",
     itemRenderFn: jest.fn()
   };
-  const component = shallow(<App {...props}></App>);
+  const { getAllByTestId } = render(<App {...props}></App>);
   //there are 3 cards generated
-  const cards = component.find(".stacked-card");
+  const cards = getAllByTestId("stacked-card", { exact: false });
 
   expect(cards).toHaveLength(3);
   cards.forEach((element, i) => {
-    expect(element.props().style).toHaveProperty("top", i * props.gapY);
+    expect(element.getAttribute("style")).toBe(
+      `top: ${i * props.gapY}px; left: ${i * props.gapY}px;`
+    );
   });
 });
 describe("test number of cards render", () => {
@@ -51,16 +54,18 @@ describe("test number of cards render", () => {
       delay: 400,
       gapX: 10,
       gapY: 10,
-      removalAnimationClassName: "stacked-card-remove-active",
+      cardRemovedClassName: "stacked-card-remove-active",
       itemRenderFn: jest.fn()
     };
-    const component = shallow(<App {...props}></App>);
+    const { getAllByTestId } = render(<App {...props}></App>);
     //there are 2 cards generated
-    const cards = component.find(".stacked-card");
+    const cards = getAllByTestId("stacked-card", { exact: false });
 
     expect(cards).toHaveLength(2);
     cards.forEach((element, i) => {
-      expect(element.props().style).toHaveProperty("top", i * props.gapY);
+      expect(element.getAttribute("style")).toBe(
+        `top: ${i * props.gapY}px; left: ${i * props.gapY}px;`
+      );
     });
   });
 
@@ -75,16 +80,18 @@ describe("test number of cards render", () => {
       delay: 400,
       gapX: 10,
       gapY: 10,
-      removalAnimationClassName: "stacked-card-remove-active",
+      cardRemovedClassName: "stacked-card-remove-active",
       itemRenderFn: jest.fn()
     };
-    const component = shallow(<App {...props}></App>);
+    const { getAllByTestId } = render(<App {...props}></App>);
     //there are 2 cards generated
-    const cards = component.find(".stacked-card");
+    const cards = getAllByTestId("stacked-card", { exact: false });
 
     expect(cards).toHaveLength(2);
     cards.forEach((element, i) => {
-      expect(element.props().style).toHaveProperty("top", i * props.gapY);
+      expect(element.getAttribute("style")).toBe(
+        `top: ${i * props.gapY}px; left: ${i * props.gapY}px;`
+      );
     });
   });
 
@@ -100,19 +107,21 @@ describe("test number of cards render", () => {
       delay: 400,
       gapX: 10,
       gapY: 10,
-      removalAnimationClassName: "stacked-card-remove-active",
+      cardRemovedClassName: "stacked-card-remove-active",
       itemRenderFn: (item: any) => <div>{item.title}</div>
     };
-    const component = shallow(<App {...props}></App>);
+    const { getAllByTestId, getByTestId, getByText } = render(
+      <App {...props}></App>
+    );
     //there are 2 cards generated
-    const cards = component.find(".stacked-card");
+    const cards = getAllByTestId("stacked-card", { exact: false });
 
     expect(cards).toHaveLength(3);
     cards.forEach((element, i) => {
-      expect(element.props().style).toHaveProperty("top", i * props.gapY);
-      expect(element.find(`[data-testid="stacked-card-${i + 2}"]`).text()).toBe(
-        `Card ${i + 3}`
+      expect(element.getAttribute("style")).toBe(
+        `top: ${i * props.gapY}px; left: ${i * props.gapY}px;`
       );
+      expect(getByText(`Card ${i + 3}`)).toBeTruthy();
     });
   });
 });
@@ -130,17 +139,17 @@ describe("item template render", () => {
       delay: 400,
       gapX: 10,
       gapY: 10,
-      removalAnimationClassName: "stacked-card-remove-active",
+      cardRemovedClassName: "stacked-card-remove-active",
       itemRenderFn: jest.fn()
     };
-    const component = shallow(<App {...props}></App>);
+    render(<App {...props}></App>);
     expect(props.itemRenderFn).toHaveBeenCalledWith(props.items[3]);
     expect(props.itemRenderFn).toHaveBeenCalledTimes(3);
   });
 });
 
 describe("item clicked", () => {
-  test("last item should be removed", done => {
+  test("last item should be removed", () => {
     const props = {
       items: [
         { id: 0, title: "Card 1" },
@@ -153,24 +162,23 @@ describe("item clicked", () => {
       cardsToShow: 2,
       gapX: 10,
       gapY: 10,
-      removalAnimationClassName: "stacked-card-remove-active",
+      cardRemovedClassName: "stacked-card-remove-active",
       itemRenderFn: jest.fn()
     };
-    const component = shallow(<App {...props}></App>);
-    const cards = component.find(".stacked-card:last-child");
-    cards.simulate("click");
-    expect(
-      component
-        .find(`.stacked-card:last-child`)
-        .hasClass(props.removalAnimationClassName)
-    ).toBe(true);
+    const { getByTestId, queryByTestId } = render(<App {...props}></App>);
+    const lastCard = getByTestId(`stacked-card-4`);
 
-    setTimeout(function() {
-      //last item should be removed after delay period
-      expect(component.find(`[data-testid="stacked-card-4"]`)).toHaveLength(0);
-      //new item added taken from items after delay period
-      expect(component.find(`[data-testid="stacked-card-2"]`)).toHaveLength(1);
-      done();
-    }, props.delay + 1);
+    act(() => {
+      jest.useFakeTimers();
+      fireEvent.click(lastCard);
+
+      jest.runAllTimers();
+      expect(queryByTestId(`stacked-card-4`)).not.toBeTruthy();
+      jest.useRealTimers();
+      // //new item added taken from items after delay period
+      expect(getByTestId("stacked-card-2")).toBeTruthy();
+    });
+
+    expect(lastCard.classList.contains(props.cardRemovedClassName)).toBe(true);
   });
 });
