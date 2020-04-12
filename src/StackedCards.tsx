@@ -5,7 +5,7 @@ interface StackedCardProps {
   cardsToShow?: number;
   items: any[];
   itemRenderFn?: (item: any) => React.ReactNode;
-  removalAnimationClassName?: string;
+  cardRemovedClassName?: string;
   delay?: number;
   gapY?: number;
   gapX?: number;
@@ -20,7 +20,7 @@ const StackedCard: React.FC<StackedCardProps> = (
     delay = 400,
     gapX = 10,
     gapY = 10,
-    removalAnimationClassName = "stacked-card-remove-active"
+    cardRemovedClassName = "stacked-card-remove-active"
   } = props;
   if (cardsToShow > items.length) cardsToShow = items.length;
   const [cards, setCards] = React.useState(
@@ -43,21 +43,23 @@ const StackedCard: React.FC<StackedCardProps> = (
 
   let cardsElmts = cards.map((item, i) => (
     <CardStyled
+      data-testid={`stacked-card-${item.id}`}
       onClick={doClick}
       key={item.id}
       style={{
         top: i * gapY,
-        left: i * gapX,
+        left: 0,
+        right: 0,
+        width: 100 - i * 10,
+        margin: "0 auto",
         backgroundColor: item.color
       }}
       className={`${
-        item.id === activeID ? removalAnimationClassName : ""
+        item.id === activeID ? cardRemovedClassName : ""
       } stacked-card`}
     >
       {item.id}
-      <div data-testid={`stacked-card-${item.id}`}>
-        {!!props.itemRenderFn && props.itemRenderFn(item)}
-      </div>
+      <div>{!!props.itemRenderFn && props.itemRenderFn(item)}</div>
     </CardStyled>
   ));
   return React.useMemo(

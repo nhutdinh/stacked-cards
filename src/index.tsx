@@ -13,12 +13,14 @@ let cards = [
   { id: 7, color: "blue" },
   { id: 8, color: "yellow" }
 ];
-const itemRenderFn = (item: any) => <div>{item.color}</div>;
+const itemRenderFn = (item: any) => (
+  <div style={{ width: "100px" }}>{item.color}</div>
+);
 
 ReactDOM.render(
   <div style={{ marginTop: "100px" }}>
     <App
-      removalAnimationClassName={"transformThis"}
+      cardRemovedClassName={"transformThis"}
       items={cards}
       itemRenderFn={itemRenderFn}
       cardsToShow={4}
