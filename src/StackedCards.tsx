@@ -1,15 +1,21 @@
 import React from "react";
 import { CardStyled } from "./StackCards.styled";
 
-interface StackedCardProps {
+export type StackedCardProps = {
   cardsToShow?: number;
   items: any[];
-  itemRenderFn?: (item: any) => React.ReactNode;
-  cardRemovedClassName?: string;
   delay?: number;
-  gapY?: number;
+  cardRemovedClassName?: string;
   gapX?: number;
-}
+  gapY?: number;
+  itemRenderFn?: (item: any) => React.ReactNode;
+};
+
+export type StackedCardStyledProps = {
+  nCards: number;
+  gapX: number;
+  gapY: number;
+};
 
 const StackedCard: React.FC<StackedCardProps> = (
   props: StackedCardProps
@@ -18,8 +24,8 @@ const StackedCard: React.FC<StackedCardProps> = (
     cardsToShow = 3,
     items,
     delay = 400,
-    gapX = 10,
-    gapY = 10,
+    gapX = 1,
+    gapY = 4,
     cardRemovedClassName = "stacked-card-remove-active"
   } = props;
   if (cardsToShow > items.length) cardsToShow = items.length;
@@ -43,17 +49,12 @@ const StackedCard: React.FC<StackedCardProps> = (
 
   let cardsElmts = cards.map((item, i) => (
     <CardStyled
+      gapX={gapX}
+      gapY={gapY}
+      nCards={cards.length}
       data-testid={`stacked-card-${item.id}`}
       onClick={doClick}
       key={item.id}
-      style={{
-        top: i * gapY,
-        left: 0,
-        right: 0,
-        width: 100 - i * 10,
-        margin: "0 auto",
-        backgroundColor: item.color
-      }}
       className={`${
         item.id === activeID ? cardRemovedClassName : ""
       } stacked-card`}
